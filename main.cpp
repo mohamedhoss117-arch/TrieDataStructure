@@ -52,7 +52,7 @@ private:
             {
                 char c = 'a' + i;
                 findAllWords(node->children[i], currentWord + c, results);
-            }
+                        }
         }
     }
 
