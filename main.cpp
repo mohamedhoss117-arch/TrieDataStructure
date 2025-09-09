@@ -39,20 +39,18 @@ private:
         if (node == nullptr)
             return;
 
-        // If this node marks the end of a word, add it
         if (node->isEndOfWord)
         {
             results.push_back(currentWord);
         }
 
-        // Recurse for all children
         for (int i = 0; i < 26; i++)
         {
             if (node->children[i] != nullptr)
             {
                 char c = 'a' + i;
                 findAllWords(node->children[i], currentWord + c, results);
-                        }
+            }
         }
     }
 
@@ -110,10 +108,8 @@ public:
         vector<string> words;
         string answer = "";
 
-        // Collect all words
         findAllWords(root, "", words);
 
-        // Find the longest one
         for (const string &word : words)
         {
             if (word.size() > answer.size())
