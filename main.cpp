@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
+
 using namespace std;
 
 // Each node in the Trie
@@ -14,13 +16,15 @@ public:
     bool isEndOfWord;
 
     // Constructor
+    TrieNode *children[26];                      // for lowercase insert/search
+    unordered_map<char, TrieNode *> childrenMap; // for extended insert/search
+    bool isEndOfWord;
+
     TrieNode()
     {
         isEndOfWord = false;
         for (int i = 0; i < 26; i++)
-        {
             children[i] = nullptr;
-        }
     }
 };
 
@@ -118,6 +122,33 @@ public:
             }
         }
         return answer;
+    }
+    void insertExtended(const string &word)
+    {
+        TrieNode *node = root;
+        for (char ch : word)
+        {
+            // use node->childrenMap (node is a pointer, so use ->)
+            auto it = node->childrenMap.find(ch);
+            if (it == node->childrenMap.end())
+            {
+                node->childrenMap[ch] = new TrieNode();
+            }
+            node = node->childrenMap[ch];
+        }
+        node->isEndOfWord = true;
+    }
+    bool searchExtended(const string &word)
+    {
+        TrieNode *node = root;
+        for (char ch : word)
+        {
+            auto it = node->childrenMap.find(ch);
+            if (it == node->childrenMap.end())
+                return false;
+            node = it->second;
+        }
+        return node->isEndOfWord;
     }
 };
 
