@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+
+#include <stack>
 using namespace std;
 
 // Each node in the Trie
@@ -83,10 +85,18 @@ public:
     // Input: word to search for (string)
     // Output: boolean indicating if the word exists
     // Purpose: Check if the complete word exists in the Trie
-    bool search(string word)
-    {
-        // TODO: Implement this function
-        return false; // placeholder
+
+    bool search(string word) {
+        TrieNode* node = root;
+        for(char c : word){
+            int index = c - 'a';
+            if(!node->children[index])
+                return false;
+            node = node->children[index];
+        }
+        if(node->isEndOfWord)
+            return true;
+        return false;
     }
 
     // Check if any word starts with the given prefix
@@ -162,6 +172,54 @@ public:
 
     bool spellCheck(string word){
         return search(word);
+
+    bool hasChild(TrieNode* node){
+        if(!node)
+            return false;
+        for(int i = 0; i < 26; i++){
+            if(node->children[i])
+                return true;
+        }
+        return false;
+    }
+    bool remove(string word){
+        TrieNode* node = root;
+        stack<TrieNode*> nodes;
+        stack<int> indexs;
+        for(char c : word){
+            int index = c - 'a';
+            if(!node->children[index])
+                return false;
+            nodes.push(node);
+            indexs.push(index);
+            node = node->children[index];
+        }
+        nodes.push(node);   //last node
+
+        // If the word does not exist as a full word
+        if(!node->isEndOfWord) 
+            return false;
+        
+        if(node->isEndOfWord){      //end of the word
+            node->isEndOfWord = false;
+            while(node != root){
+                if(hasChild(node) || node->isEndOfWord)
+                    break;
+                else{        //has no child and not end of the word
+                    //remove from the stack and delete it
+                    TrieNode* child = nodes.top(); 
+                    nodes.pop();
+                    if(!nodes.empty()){     //if not empty get parent and set the child = null
+                        TrieNode* parent = nodes.top();
+                        parent->children[indexs.top()] = nullptr;
+                        indexs.pop();
+                        node = parent;
+                    }
+                    delete child;
+                }
+            }
+        }
+        return true;
     }
 };
 
