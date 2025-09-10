@@ -12,6 +12,7 @@ public:
     // Each node has up to 26 children (for each letter)
     TrieNode *children[26];
 
+
     // Marks if this node completes a word
     bool isEndOfWord;
 
@@ -33,6 +34,7 @@ class Trie
 {
 private:
     TrieNode *root;
+
 
     // Helper function to find all words from a node
     // Input: current node, current word formed so far, results vector to store words
@@ -104,7 +106,16 @@ public:
     vector<string> autocomplete(string prefix)
     {
         vector<string> suggestions;
-        // TODO: Implement this function
+        TrieNode* node = root;
+        for (char ch : prefix){
+        int childIndex = ch - 'a';
+        if (!node->children[childIndex]){
+            return suggestions;
+        }
+        node = node->children[childIndex];
+        }
+        findAllWords(node, prefix, suggestions);
+        return suggestions;
         return suggestions;
     }
     string longestWord()
@@ -128,7 +139,6 @@ public:
         TrieNode *node = root;
         for (char ch : word)
         {
-            // use node->childrenMap (node is a pointer, so use ->)
             auto it = node->childrenMap.find(ch);
             if (it == node->childrenMap.end())
             {
@@ -149,6 +159,9 @@ public:
             node = it->second;
         }
         return node->isEndOfWord;
+
+    bool spellCheck(string word){
+        return search(word);
     }
 };
 
