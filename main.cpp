@@ -11,16 +11,10 @@ using namespace std;
 class TrieNode
 {
 public:
-    // Each node has up to 26 children (for each letter)
-    TrieNode *children[26];
-
-
-    // Marks if this node completes a word
-    bool isEndOfWord;
-
+  
     // Constructor
-    TrieNode *children[26];                      // for lowercase insert/search
-    unordered_map<char, TrieNode *> childrenMap; // for extended insert/search
+    TrieNode *children[26];                      
+    unordered_map<char, TrieNode *> childrenMap; 
     bool isEndOfWord;
 
     TrieNode()
@@ -44,21 +38,20 @@ private:
     // Purpose: Recursively find all complete words starting from the given node
     void findAllWords(TrieNode *node, string currentWord, vector<string> &results)
     {
-        if (node == nullptr)
-            return;
+        if (!node) return;
+        if (node->isEndOfWord) results.push_back(currentWord);
 
-        if (node->isEndOfWord)
-        {
-            results.push_back(currentWord);
-        }
-
-        for (int i = 0; i < 26; i++)
-        {
-            if (node->children[i] != nullptr)
-            {
+        // lowercase children
+        for (int i = 0; i < 26; i++) {
+            if (node->children[i]) {
                 char c = 'a' + i;
                 findAllWords(node->children[i], currentWord + c, results);
             }
+        }
+
+        // extended children
+        for (auto &p : node->childrenMap) {
+            findAllWords(p.second, currentWord + p.first, results);
         }
     }
 
@@ -78,7 +71,14 @@ public:
     // Purpose: Add a word to the Trie by creating nodes for each character
     void insert(string word)
     {
-        // TODO: Implement this function
+    TrieNode* node = root;
+        for (char c : word) {
+            if (!islower(static_cast<unsigned char>(c))) continue; 
+            int idx = c - 'a';
+            if (!node->children[idx]) node->children[idx] = new TrieNode();
+            node = node->children[idx];
+        }
+        node->isEndOfWord = true;
     }
 
     // Search for a word in the Trie
@@ -87,6 +87,7 @@ public:
     // Purpose: Check if the complete word exists in the Trie
 
     bool search(string word) {
+        if (word.empty()) return false;
         TrieNode* node = root;
         for(char c : word){
             int index = c - 'a';
@@ -139,7 +140,6 @@ public:
         }
         findAllWords(node, prefix, suggestions);
         return suggestions;
-        return suggestions;
     }
     string longestWord()
     {
@@ -182,10 +182,10 @@ public:
             node = it->second;
         }
         return node->isEndOfWord;
-
+    }
     bool spellCheck(string word){
-        return search(word);
-
+        return search(word) || searchExtended(word);
+    }
     bool hasChild(TrieNode* node){
         if(!node)
             return false;
@@ -193,8 +193,10 @@ public:
             if(node->children[i])
                 return true;
         }
+            if(!node->childrenMap.empty()) return true;
         return false;
     }
+        
     bool remove(string word){
         TrieNode* node = root;
         stack<TrieNode*> nodes;
