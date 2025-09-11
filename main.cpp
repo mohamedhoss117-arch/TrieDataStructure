@@ -105,8 +105,21 @@ public:
     // Purpose: Verify if the prefix exists in the Trie (doesn't need to be a complete word)
     bool startsWith(string prefix)
     {
-        // TODO: Implement this function
-        return false; // placeholder
+     TrieNode *node = root;
+
+        for (char c : prefix)
+        {
+            int index = c - 'a';
+
+            if (node->children[index] == nullptr)
+            {
+                return false;
+            }
+
+            node = node->children[index];
+        }
+
+        return true;       
     }
 
     // Get all words that start with the given prefix
@@ -220,6 +233,26 @@ public:
             }
         }
         return true;
+    }
+        
+    int countWordsFromNode(TrieNode* node) {
+        if (node == nullptr) return 0;
+
+        int count = 0;
+
+        if (node->isEndOfWord) {
+            count++;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            count += countWordsFromNode(node->children[i]);
+        }
+
+        return count;
+    }
+
+    int countWords() {
+        return countWordsFromNode(root);
     }
 };
 
